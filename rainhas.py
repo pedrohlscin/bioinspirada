@@ -72,7 +72,12 @@ def mutacao(individuo):
     return individuo
 
 def avaliar_selecionar(populacao,filhos):
-    
+    avaliacoes_fitness = []
+    for individuo in populacao:
+        avaliacoes_fitness.append((individuo, avaliar_configuracao(individuo)))
+    avaliacoes_fitness.sort(key= lambda x :x[1])
+     
+    print(avaliacoes_fitness)
     return populacao
              
 # seed(1) 
@@ -83,4 +88,4 @@ filhos = recombinacao(pais)
 for filho in filhos:
     filho = mutacao(filho)
 print(filhos)
-avaliar_e_selecionar(populacao,filhos)
+avaliar_selecionar(populacao,filhos)

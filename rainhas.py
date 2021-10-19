@@ -31,7 +31,7 @@ def avaliar_configuracao(candidato):
             if (r_checa == coluna): 
                 continue 
             diferenca = abs(coluna - r_checa) 
-            if candidato[r_checa == rainha + diferenca] or candidato[r_checa == rainha - diferenca]: 
+            if (candidato[r_checa] == rainha + diferenca or candidato[r_checa] == rainha - diferenca): 
                 penalidade_rainha += 1 
         penalidade_rainhas += penalidade_rainha 
     return 1/(1+penalidade_rainhas)
@@ -64,28 +64,49 @@ def crossfill(filho, pai, index):
 def mutacao(individuo):
     mutate = randint(1,10)
     if(mutate<=4):
-        print('houve mutacao')
         index_a, index_b = randint(0,7),randint(0,7)
-        print('Individuo antes ', individuo)
         individuo[index_a], individuo[index_b]= individuo[index_b],individuo[index_a]
-        print("Individuo depois", individuo)
     return individuo
 
 def avaliar_selecionar(populacao,filhos):
     avaliacoes_fitness = []
     for individuo in populacao:
         avaliacoes_fitness.append((individuo, avaliar_configuracao(individuo)))
+    
+    fitness_filhos = []
+    for filho in filhos:
+        fitness_filhos.append((filho, avaliar_configuracao(filho)))
+
     avaliacoes_fitness.sort(key= lambda x :x[1])
-     
-    print(avaliacoes_fitness)
-    return populacao
+    # nova_populacao = [i[0] for i in avaliacoes_fitness]
+    nova_populacao = avaliacoes_fitness[2:] + fitness_filhos
+    nova_populacao.sort(key= lambda x :x[1])
+    return nova_populacao
+
+def fitness_medio_populacao(populacao):
+    fitness = 0.0
+    for i in range(0,len(populacao)):
+        fitness = fitness + avaliar_configuracao(populacao[i])
+    fitness = fitness/(len(populacao))
+    return fitness
              
 # seed(1) 
+
 populacao = inicializar() 
-pais = selecionar_pais(populacao) 
-print(pais)
-filhos = recombinacao(pais)
-for filho in filhos:
-    filho = mutacao(filho)
-print(filhos)
-avaliar_selecionar(populacao,filhos)
+melhor_individuo = ([],0.0)
+geracao = 1
+avaliacoes_fitness = 0
+while(melhor_individuo[1] != 1.0 and avaliacoes_fitness<10000):
+    pais = selecionar_pais(populacao) 
+    filhos = recombinacao(pais)
+    for filho in filhos:
+        filho = mutacao(filho)
+    candidatos = avaliar_selecionar(populacao,filhos)
+    melhor_individuo = candidatos[-1]
+    print("Na geração: ",geracao)
+    print("O melhor candidato é ", melhor_individuo)
+    print("O fitness médio da população é : ", fitness_medio_populacao(populacao))
+    populacao = [i[0] for i in candidatos]
+    geracao = geracao+1
+    avaliacoes_fitness = avaliacoes_fitness+107
+print("Foram feitas ", avaliacoes_fitness," avaliações")
